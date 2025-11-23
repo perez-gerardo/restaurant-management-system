@@ -1,0 +1,169 @@
+---
+import LayoutSidebar from '../../../../app/LayoutSidebar.astro';
+import { getCurrentUser, fetchClientes, fetchMesas } from '../../../../lib/api.ts';
+
+// Verificar permisos - MOZO, COCINERO y ADMIN pueden editar pedidos
+const user = await getCurrentUser();
+const userRoles = user?.roles || [];
+
+if (user) {
+	const canEdit = userRoles.includes('ADMIN') || userRoles.includes('MOZO') || userRoles.includes('COCINERO');
+	if (!canEdit) {
+		return Astro.redirect('/acceso-denegado');
+	}
+}
+
+const { id } = Astro.params;
+let pedido = null;
+
+try {
+	const response = await fetch(`http://localhost:8081/api/pedidos/${id}`, {
+		credentials: 'include'
+	});
+	if (response.ok) {
+		pedido = await response.json();
+	}
+} catch (error) {
+	console.error('Error fetching pedido:', error);
+}
+
+if (!pedido) {
+	return Astro.redirect('/crud/pedidos');
+}
+
+const clientes = await fetchClientes();
+const mesas = await fetchMesas();
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Editar Pedido #{pedido.idPedido}</h1>
+			<p class="text-gray-600 dark:text-gray-400">Modificar información del pedido</p>
+		</div>
+
+		<div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+			<form id="formPedido" class="space-y-6">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+					<div>
+						<label
+							for="mesa"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Mesa *</label
+						>
+						<select
+							id="mesa"
+							name="mesa"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+						>
+							{mesas.map((mesa) => (
+								<option value={mesa.idMesa} selected={pedido.mesa?.idMesa === mesa.idMesa}>
+									{mesa.numero} - {mesa.estado}
+								</option>
+							))}
+						</select>
+					</div>
+					<div>
+						<label
+							for="cliente"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Cliente</label
+						>
+						<select
+							id="cliente"
+							name="cliente"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+						>
+							<option value="">Sin cliente</option>
+							{clientes.map((cliente) => (
+								<option
+									value={cliente.idCliente}
+									selected={pedido.cliente?.idCliente === cliente.idCliente}
+								>
+									{cliente.nombres} {cliente.apellidos}
+								</option>
+							))}
+						</select>
+					</div>
+				</div>
+
+				<div>
+					<label
+						for="estado"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Estado *</label
+					>
+					<select
+						id="estado"
+						name="estado"
+						required
+						class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+					>
+						<option value="pendiente" selected={pedido.estado === 'pendiente'}>Pendiente</option>
+						<option value="en preparación" selected={pedido.estado === 'en preparación'}>En Preparación</option>
+						<option value="servido" selected={pedido.estado === 'servido'}>Servido</option>
+						<option value="cerrado" selected={pedido.estado === 'cerrado'}>Cerrado</option>
+					</select>
+					{userRoles.includes('COCINERO') && (
+						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+							💡 Como cocinero, puedes cambiar el estado del pedido para confirmar que está en preparación o servido.
+						</p>
+					)}
+				</div>
+
+				<div class="flex justify-end space-x-3">
+					<a
+						href="/crud/pedidos"
+						class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+					>
+						Cancelar
+					</a>
+					<button
+						type="submit"
+						class="px-5 py-2.5 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+					>
+						Actualizar Pedido
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</LayoutSidebar>
+
+<script define:vars={{ pedidoId: pedido.idPedido }}>
+	document.getElementById('formPedido')?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		
+		const formData = {
+			mesa: { idMesa: parseInt(document.getElementById('mesa').value) },
+			cliente: document.getElementById('cliente').value
+				? { idCliente: parseInt(document.getElementById('cliente').value) }
+				: null,
+			estado: document.getElementById('estado').value,
+			fechaHora: new Date().toISOString(),
+			total: 0
+		};
+
+		try {
+			const response = await fetch(`http://localhost:8081/api/pedidos/${pedidoId}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+				body: JSON.stringify(formData),
+			});
+
+			if (response.ok) {
+				window.location.href = '/crud/pedidos';
+			} else {
+				alert('Error al actualizar el pedido');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			alert('Error al actualizar el pedido');
+		}
+	});
+</script>
+

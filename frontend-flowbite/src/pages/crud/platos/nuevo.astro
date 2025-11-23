@@ -1,0 +1,150 @@
+---
+import LayoutSidebar from '../../../app/LayoutSidebar.astro';
+import { API_URL } from '../../../lib/api.ts';
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nuevo Plato</h1>
+			<p class="text-gray-600 dark:text-gray-400">Agregar un nuevo plato al menú</p>
+		</div>
+
+		<div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+			<form id="formPlato" class="space-y-6">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+					<div>
+						<label
+							for="nombre"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Nombre del Plato *</label
+						>
+						<input
+							type="text"
+							id="nombre"
+							name="nombre"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Ej: Lomo Saltado"
+						/>
+					</div>
+					<div>
+						<label
+							for="tipo"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Tipo *</label
+						>
+						<select
+							id="tipo"
+							name="tipo"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+						>
+							<option value="">Seleccione un tipo</option>
+							<option value="Entrada">Entrada</option>
+							<option value="Plato Principal">Plato Principal</option>
+							<option value="Postre">Postre</option>
+							<option value="Bebida">Bebida</option>
+						</select>
+					</div>
+					<div class="sm:col-span-2">
+						<label
+							for="descripcion"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Descripción</label
+						>
+						<textarea
+							id="descripcion"
+							name="descripcion"
+							rows="3"
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Descripción del plato..."
+						></textarea>
+					</div>
+					<div>
+						<label
+							for="precio"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Precio (S/) *</label
+						>
+						<input
+							type="number"
+							id="precio"
+							name="precio"
+							step="0.01"
+							min="0"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="0.00"
+						/>
+					</div>
+					<div>
+						<label
+							for="estado"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Estado *</label
+						>
+						<select
+							id="estado"
+							name="estado"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+						>
+							<option value="disponible">Disponible</option>
+							<option value="no disponible">No Disponible</option>
+						</select>
+					</div>
+				</div>
+				<div class="flex gap-4">
+					<button
+						type="submit"
+						class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+					>
+						Guardar Plato
+					</button>
+					<a
+						href="/crud/platos"
+						class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+					>
+						Cancelar
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</LayoutSidebar>
+
+<script>
+	document.getElementById('formPlato')?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		const data = {
+			nombre: formData.get('nombre'),
+			tipo: formData.get('tipo'),
+			descripcion: formData.get('descripcion') || null,
+			precio: parseFloat(formData.get('precio')),
+			estado: formData.get('estado')
+		};
+
+		try {
+			const response = await fetch('http://localhost:8081/api/platos', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				alert('Plato creado exitosamente');
+				window.location.href = '/crud/platos';
+			} else {
+				alert('Error al crear el plato');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			alert('Error al conectar con el servidor');
+		}
+	});
+</script>
+

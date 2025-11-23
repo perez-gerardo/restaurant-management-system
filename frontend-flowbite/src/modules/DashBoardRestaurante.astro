@@ -1,0 +1,140 @@
+---
+import { fetchStats } from '../lib/api.ts';
+
+const stats = await fetchStats();
+---
+
+<div class="px-4 pt-6">
+	<div class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+		<!-- Main widget -->
+		<div
+			class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm 2xl:col-span-2 dark:border-gray-700 sm:p-6 dark:bg-gray-800"
+		>
+			<div class="flex items-center justify-between mb-4">
+				<div class="flex-shrink-0">
+					<span
+						class="text-xl font-bold leading-none text-gray-900 sm:text-2xl dark:text-white"
+						>Sabor Gourmet</span
+					>
+					<h3 class="text-base font-light text-gray-500 dark:text-gray-400">
+						Sistema de Gestión de Restaurante
+					</h3>
+				</div>
+				<div
+					class="flex items-center justify-end flex-1 text-base font-medium text-green-500 dark:text-green-400"
+				>
+					Bienvenido
+				</div>
+			</div>
+
+			<!-- Stats Grid -->
+			<div class="grid grid-cols-2 gap-4 mt-6">
+				<div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+					<div class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Clientes</div>
+					<div class="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalClientes}</div>
+				</div>
+				<div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+					<div class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Ventas</div>
+					<div class="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalVentas}</div>
+				</div>
+				<div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+					<div class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Platos</div>
+					<div class="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalPlatos}</div>
+				</div>
+				<div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+					<div class="text-sm font-medium text-gray-500 dark:text-gray-400">Pedidos Pendientes</div>
+					<div class="text-2xl font-bold text-gray-900 dark:text-white">{stats.pedidosPendientes}</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Right widgets -->
+		<div class="grid gap-4 xl:grid-cols-1">
+			<!-- Statistics This Month -->
+			<div
+				class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800"
+			>
+				<div class="flex items-center justify-between mb-4">
+					<h3 class="text-base font-semibold text-gray-900 dark:text-white">
+						Módulos del Sistema
+					</h3>
+				</div>
+				<div class="flow-root">
+					<ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center space-x-4">
+								<div class="flex-shrink-0">
+									<svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+									</svg>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+										Clientes
+									</p>
+								</div>
+								<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<a href="/crud/clientes" class="text-blue-600 hover:text-blue-800">Ver</a>
+								</div>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center space-x-4">
+								<div class="flex-shrink-0">
+									<svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+										<path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+									</svg>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+										Mesas
+									</p>
+								</div>
+								<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<a href="/crud/mesas" class="text-green-600 hover:text-green-800">Ver</a>
+								</div>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center space-x-4">
+								<div class="flex-shrink-0">
+									<svg class="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"></path>
+									</svg>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+										Platos
+									</p>
+								</div>
+								<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<a href="/crud/platos" class="text-orange-600 hover:text-orange-800">Ver</a>
+								</div>
+							</div>
+						</li>
+						<li class="py-3 sm:py-4">
+							<div class="flex items-center space-x-4">
+								<div class="flex-shrink-0">
+									<svg class="w-6 h-6 text-pink-600" fill="currentColor" viewBox="0 0 20 20">
+										<path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"></path>
+									</svg>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="text-sm font-medium text-gray-900 truncate dark:text-white">
+										Pedidos
+									</p>
+								</div>
+								<div class="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+									<a href="/crud/pedidos" class="text-pink-600 hover:text-pink-800">Ver</a>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+

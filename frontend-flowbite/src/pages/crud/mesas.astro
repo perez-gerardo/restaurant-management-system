@@ -1,0 +1,81 @@
+---
+import LayoutSidebar from '../../app/LayoutSidebar.astro';
+import { fetchMesas, getCurrentUser } from '../../lib/api.ts';
+
+// Verificar permisos
+const user = await getCurrentUser();
+const userRoles = user?.roles || [];
+
+// Si hay usuario, verificar que sea admin
+if (user) {
+	const isAdmin = userRoles.includes('ADMIN');
+	if (!isAdmin) {
+		return Astro.redirect('/acceso-denegado');
+	}
+}
+
+const mesas = await fetchMesas();
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4 flex justify-between items-center">
+			<div>
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Mesas</h1>
+				<p class="text-gray-600 dark:text-gray-400">Control de mesas y disponibilidad</p>
+			</div>
+			<a
+				href="/crud/mesas/nuevo"
+				class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+			>
+				Nueva Mesa
+			</a>
+		</div>
+
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+			{mesas.map((mesa) => (
+				<div
+					class={`p-6 rounded-lg border-2 transition-all hover:shadow-lg ${
+						mesa.estado === 'disponible'
+							? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+							: mesa.estado === 'ocupada'
+								? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
+								: mesa.estado === 'reservada'
+									? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800'
+									: 'bg-gray-50 border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+					}`}
+				>
+					<div class="text-center">
+						<div class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+							Mesa {mesa.numero}
+						</div>
+						<div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+							Capacidad: {mesa.capacidad} personas
+						</div>
+						<span
+							class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+								mesa.estado === 'disponible'
+									? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+									: mesa.estado === 'ocupada'
+										? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+										: mesa.estado === 'reservada'
+											? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+											: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+							}`}
+						>
+							{mesa.estado}
+						</span>
+					</div>
+				</div>
+			))}
+			{mesas.length === 0 && (
+				<div class="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
+					No hay mesas registradas
+				</div>
+			)}
+		</div>
+	</div>
+</LayoutSidebar>
+
+
+

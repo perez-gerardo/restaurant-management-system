@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario - Sabor Gourmet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/dashboard">Sabor Gourmet</a>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Gestión de Inventario</h1>
+            <a href="/inventario/nuevo" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Nuevo Insumo
+            </a>
+        </div>
+        
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+        <div th:if="${insumosStockBajo != null && !insumosStockBajo.isEmpty()}" class="alert alert-warning">
+            <strong>Alerta:</strong> Hay insumos con stock bajo:
+            <ul class="mb-0">
+                <li th:each="insumo : ${insumosStockBajo}">
+                    <span th:text="${insumo.nombre + ' - Stock: ' + insumo.stock + ' (Mínimo: ' + insumo.stockMinimo + ')'}"></span>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Unidad</th>
+                            <th>Stock</th>
+                            <th>Stock Mínimo</th>
+                            <th>Precio Compra</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="insumo : ${insumos}">
+                            <td th:text="${insumo.idInsumo}"></td>
+                            <td th:text="${insumo.nombre}"></td>
+                            <td th:text="${insumo.unidadMedida}"></td>
+                            <td>
+                                <span th:class="${insumo.stock <= insumo.stockMinimo} ? 'text-danger fw-bold' : ''"
+                                      th:text="${insumo.stock}"></span>
+                            </td>
+                            <td th:text="${insumo.stockMinimo}"></td>
+                            <td th:text="${'S/ ' + #numbers.formatDecimal(insumo.precioCompra, 1, 2)}"></td>
+                            <td>
+                                <span class="badge" 
+                                      th:classappend="${insumo.estado == 'activo'} ? 'bg-success' : 'bg-secondary'"
+                                      th:text="${insumo.estado}"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/inventario/editar/{id}(id=${insumo.idInsumo})}" 
+                                   class="btn btn-sm btn-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a th:href="@{/inventario/eliminar/{id}(id=${insumo.idInsumo})}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('¿Está seguro?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+

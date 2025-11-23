@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sabor Gourmet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="bi bi-cup-hot-fill"></i>
+            <h4>SABOR GOURMET</h4>
+        </div>
+        <nav class="sidebar-menu">
+            <a href="/dashboard" class="sidebar-menu-item active">
+                <i class="bi bi-speedometer2"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/clientes" class="sidebar-menu-item" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-people-fill"></i>
+                <span>Clientes</span>
+            </a>
+            <a href="/admin/mesas" class="sidebar-menu-item" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-table"></i>
+                <span>Mesas</span>
+            </a>
+            <a href="/admin/platos" class="sidebar-menu-item" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-egg-fried"></i>
+                <span>Platos</span>
+            </a>
+            <a href="/pedidos" class="sidebar-menu-item" sec:authorize="hasAnyRole('MOZO', 'COCINERO', 'ADMIN')">
+                <i class="bi bi-cart-check-fill"></i>
+                <span>Pedidos</span>
+            </a>
+            <a href="/ventas" class="sidebar-menu-item" sec:authorize="hasAnyRole('CAJERO', 'ADMIN')">
+                <i class="bi bi-receipt-cutoff"></i>
+                <span>Ventas</span>
+            </a>
+            <a href="/inventario" class="sidebar-menu-item" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Inventario</span>
+            </a>
+            <a href="/admin/usuarios" class="sidebar-menu-item" sec:authorize="hasRole('ADMIN')">
+                <i class="bi bi-person-badge-fill"></i>
+                <span>Usuarios</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-search">
+            <i class="bi bi-search"></i>
+            <input type="text" placeholder="Buscar..." class="form-control">
+        </div>
+        <div class="topbar-user">
+            <div class="user-info">
+                <div class="user-name" sec:authentication="name">admin</div>
+                <div class="user-role" sec:authentication="authorities">ROLE_ADMIN</div>
+            </div>
+            <a th:href="@{/logout}" class="btn btn-modern btn-danger-modern">
+                <i class="bi bi-box-arrow-right"></i> Salir
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content fade-in">
+        <div class="page-header-modern">
+            <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
+            <p>Bienvenido al sistema de gestión de restaurante</p>
+        </div>
+
+        <!-- Métricas -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 col-lg-3" sec:authorize="hasRole('ADMIN')">
+                <div class="metric-card primary">
+                    <div class="metric-header">
+                        <div class="metric-title">Total de Clientes</div>
+                        <div class="metric-icon primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                    <h2 class="metric-value" th:text="${totalClientes != null ? totalClientes : '0'}">0</h2>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" sec:authorize="hasRole('ADMIN')">
+                <div class="metric-card success">
+                    <div class="metric-header">
+                        <div class="metric-title">Total de Ventas</div>
+                        <div class="metric-icon success">
+                            <i class="bi bi-cart-check-fill"></i>
+                        </div>
+                    </div>
+                    <h2 class="metric-value" th:text="${totalVentas != null ? totalVentas : '0'}">0</h2>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" sec:authorize="hasRole('ADMIN')">
+                <div class="metric-card warning">
+                    <div class="metric-header">
+                        <div class="metric-title">Total de Platos</div>
+                        <div class="metric-icon warning">
+                            <i class="bi bi-egg-fried"></i>
+                        </div>
+                    </div>
+                    <h2 class="metric-value" th:text="${totalPlatos != null ? totalPlatos : '0'}">0</h2>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3" sec:authorize="hasAnyRole('MOZO', 'COCINERO', 'ADMIN')">
+                <div class="metric-card info">
+                    <div class="metric-header">
+                        <div class="metric-title">Pedidos Pendientes</div>
+                        <div class="metric-icon info">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                    </div>
+                    <h2 class="metric-value" th:text="${pedidosPendientes != null ? pedidosPendientes : '0'}">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos Rápidos -->
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Gestión de Clientes</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Administra los clientes del restaurante</p>
+                        <a href="/admin/clientes" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-table"></i>
+                        <span>Gestión de Mesas</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Control de mesas y disponibilidad</p>
+                        <a href="/admin/mesas" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" sec:authorize="hasAnyRole('MOZO', 'COCINERO', 'ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-cart-check-fill"></i>
+                        <span>Gestión de Pedidos</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Administra pedidos y órdenes</p>
+                        <a href="/pedidos" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" sec:authorize="hasAnyRole('CAJERO', 'ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-receipt-cutoff"></i>
+                        <span>Gestión de Ventas</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Facturación y control de ventas</p>
+                        <a href="/ventas" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-box-seam-fill"></i>
+                        <span>Gestión de Inventario</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Control de insumos y stock</p>
+                        <a href="/inventario" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4" sec:authorize="hasRole('ADMIN')">
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <i class="bi bi-person-badge-fill"></i>
+                        <span>Gestión de Usuarios</span>
+                    </div>
+                    <div class="card-body-modern">
+                        <p class="text-muted mb-3">Administra usuarios y roles</p>
+                        <a href="/admin/usuarios" class="btn btn-modern btn-primary-modern">
+                            <i class="bi bi-arrow-right-circle"></i> Acceder
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

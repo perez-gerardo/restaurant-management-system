@@ -1,0 +1,116 @@
+---
+import LayoutSidebar from '../../../app/LayoutSidebar.astro';
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Nueva Mesa</h1>
+			<p class="text-gray-600 dark:text-gray-400">Registrar una nueva mesa</p>
+		</div>
+
+		<div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
+			<form id="formMesa" class="space-y-6">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+					<div>
+						<label
+							for="numero"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Número de Mesa *</label
+						>
+						<input
+							type="number"
+							id="numero"
+							name="numero"
+							min="1"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Ej: 1"
+						/>
+					</div>
+					<div>
+						<label
+							for="capacidad"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Capacidad (personas) *</label
+						>
+						<input
+							type="number"
+							id="capacidad"
+							name="capacidad"
+							min="1"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+							placeholder="Ej: 4"
+						/>
+					</div>
+					<div>
+						<label
+							for="estado"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Estado *</label
+						>
+						<select
+							id="estado"
+							name="estado"
+							required
+							class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+						>
+							<option value="disponible">Disponible</option>
+							<option value="ocupada">Ocupada</option>
+							<option value="reservada">Reservada</option>
+							<option value="mantenimiento">Mantenimiento</option>
+						</select>
+					</div>
+				</div>
+				<div class="flex gap-4">
+					<button
+						type="submit"
+						class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+					>
+						Guardar Mesa
+					</button>
+					<a
+						href="/crud/mesas"
+						class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+					>
+						Cancelar
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</LayoutSidebar>
+
+<script>
+	document.getElementById('formMesa')?.addEventListener('submit', async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		const data = {
+			numero: parseInt(formData.get('numero')),
+			capacidad: parseInt(formData.get('capacidad')),
+			estado: formData.get('estado')
+		};
+
+		try {
+			const response = await fetch('http://localhost:8081/api/mesas', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				alert('Mesa creada exitosamente');
+				window.location.href = '/crud/mesas';
+			} else {
+				alert('Error al crear la mesa');
+			}
+		} catch (error) {
+			console.error('Error:', error);
+			alert('Error al conectar con el servidor');
+		}
+	});
+</script>
+

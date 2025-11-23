@@ -1,0 +1,91 @@
+---
+import LayoutSidebar from '../../app/LayoutSidebar.astro';
+import { fetchFacturas, getCurrentUser } from '../../lib/api.ts';
+
+// Verificar permisos
+const user = await getCurrentUser();
+const userRoles = user?.roles || [];
+
+// Si no hay usuario, permitir acceso (para desarrollo - se puede restringir después)
+// Si hay usuario, verificar permisos
+if (user) {
+	const canAccess = userRoles.includes('ADMIN') || userRoles.includes('CAJERO');
+	if (!canAccess) {
+		return Astro.redirect('/acceso-denegado');
+	}
+}
+
+const facturas = await fetchFacturas();
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4">
+			<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Ventas</h1>
+			<p class="text-gray-600 dark:text-gray-400">Facturación y control de ventas</p>
+		</div>
+
+		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+			<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+				<thead
+					class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+				>
+					<tr>
+						<th scope="col" class="px-6 py-3">ID</th>
+						<th scope="col" class="px-6 py-3">Pedido</th>
+						<th scope="col" class="px-6 py-3">Fecha</th>
+						<th scope="col" class="px-6 py-3">Total</th>
+						<th scope="col" class="px-6 py-3">Método Pago</th>
+						<th scope="col" class="px-6 py-3">Estado</th>
+						<th scope="col" class="px-6 py-3">Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+					{facturas.map((factura) => (
+						<tr
+							class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+						>
+							<td class="px-6 py-4">{factura.idFactura}</td>
+							<td class="px-6 py-4">{factura.pedido?.idPedido || '-'}</td>
+							<td class="px-6 py-4">
+								{new Date(factura.fechaEmision).toLocaleString('es-PE')}
+							</td>
+							<td class="px-6 py-4 font-semibold">S/ {factura.total.toFixed(2)}</td>
+							<td class="px-6 py-4">{factura.metodoPago}</td>
+							<td class="px-6 py-4">
+								<span
+									class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+										factura.estado === 'pagado'
+											? 'bg-green-100 text-green-800'
+											: 'bg-yellow-100 text-yellow-800'
+									}`}
+								>
+									{factura.estado}
+								</span>
+							</td>
+							<td class="px-6 py-4">
+								{factura.estado === 'pendiente' && (
+									<button
+										class="font-medium text-green-600 dark:text-green-500 hover:underline"
+									>
+										Pagar
+									</button>
+								)}
+							</td>
+						</tr>
+					))}
+					{facturas.length === 0 && (
+						<tr>
+							<td colspan="7" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+								No hay facturas registradas
+							</td>
+						</tr>
+					)}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</LayoutSidebar>
+
+
+

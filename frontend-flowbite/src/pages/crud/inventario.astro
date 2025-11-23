@@ -1,0 +1,145 @@
+---
+import LayoutSidebar from '../../app/LayoutSidebar.astro';
+import { fetchInsumos, API_URL, getCurrentUser } from '../../lib/api.ts';
+
+// Verificar permisos
+const user = await getCurrentUser();
+const userRoles = user?.roles || [];
+
+// Si hay usuario, verificar que sea admin
+if (user) {
+	const isAdmin = userRoles.includes('ADMIN');
+	if (!isAdmin) {
+		return Astro.redirect('/acceso-denegado');
+	}
+}
+
+const insumos = await fetchInsumos();
+let insumosStockBajo = [];
+
+try {
+	const response = await fetch(`${API_URL}/insumos/stock-bajo`);
+	if (response.ok) {
+		insumosStockBajo = await response.json();
+	}
+} catch (error) {
+	console.error('Error fetching insumos stock bajo:', error);
+}
+---
+
+<LayoutSidebar>
+	<div class="px-4 pt-6">
+		<div class="mb-4 flex justify-between items-center">
+			<div>
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Inventario</h1>
+				<p class="text-gray-600 dark:text-gray-400">Control de insumos y stock</p>
+			</div>
+			<a
+				href="/crud/inventario/nuevo"
+				class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700"
+			>
+				Nuevo Insumo
+			</a>
+		</div>
+
+		{insumosStockBajo.length > 0 && (
+			<div
+				class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/20 dark:border-yellow-800"
+			>
+				<div class="flex items-center">
+					<svg
+						class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mr-2"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+					>
+						<path
+							fill-rule="evenodd"
+							d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+							clip-rule="evenodd"
+						></path>
+					</svg>
+					<div>
+						<h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-300">
+							Alerta: Stock Bajo
+						</h3>
+						<p class="text-sm text-yellow-700 dark:text-yellow-400">
+							{insumosStockBajo.length} insumo(s) con stock bajo
+						</p>
+					</div>
+				</div>
+			</div>
+		)}
+
+		<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+			<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+				<thead
+					class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+				>
+					<tr>
+						<th scope="col" class="px-6 py-3">ID</th>
+						<th scope="col" class="px-6 py-3">Nombre</th>
+						<th scope="col" class="px-6 py-3">Unidad</th>
+						<th scope="col" class="px-6 py-3">Stock</th>
+						<th scope="col" class="px-6 py-3">Stock Mínimo</th>
+						<th scope="col" class="px-6 py-3">Precio Compra</th>
+						<th scope="col" class="px-6 py-3">Estado</th>
+						<th scope="col" class="px-6 py-3">Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+					{insumos.map((insumo) => {
+						const stockBajo = insumo.stock <= insumo.stockMinimo;
+						const rowClass = stockBajo 
+							? 'bg-red-50 dark:bg-red-900/20 border-b dark:border-gray-700 hover:bg-red-100 dark:hover:bg-red-900/30' 
+							: 'bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600';
+						return (
+							<tr class={rowClass}>
+								<td class="px-6 py-4">{insumo.idInsumo}</td>
+								<td class="px-6 py-4 font-medium">{insumo.nombre}</td>
+								<td class="px-6 py-4">{insumo.unidadMedida}</td>
+								<td class={stockBajo ? 'px-6 py-4 font-semibold text-red-600 dark:text-red-400' : 'px-6 py-4 font-semibold'}>
+									{insumo.stock}
+								</td>
+								<td class="px-6 py-4">{insumo.stockMinimo}</td>
+								<td class="px-6 py-4">S/ {insumo.precioCompra.toFixed(2)}</td>
+								<td class="px-6 py-4">
+									{insumo.estado === 'activo' ? (
+										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+											{insumo.estado}
+										</span>
+									) : (
+										<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+											{insumo.estado}
+										</span>
+									)}
+								</td>
+								<td class="px-6 py-4">
+									<a
+										href={`/crud/inventario/editar/${insumo.idInsumo}`}
+										class="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-3"
+										>Editar</a
+									>
+									<a
+										href={`/crud/inventario/eliminar/${insumo.idInsumo}`}
+										class="font-medium text-red-600 dark:text-red-500 hover:underline"
+										>Eliminar</a
+									>
+								</td>
+							</tr>
+						);
+					})}
+					{insumos.length === 0 && (
+						<tr>
+							<td colspan="8" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+								No hay insumos registrados
+							</td>
+						</tr>
+					)}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</LayoutSidebar>
+
+
+
